@@ -31,6 +31,7 @@ double request() {
     curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYPEER, false);
     curl_easy_setopt(pCurl, CURLOPT_ENCODING, "gzip");
     curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, curl_cb);
+    curl_easy_setopt(pCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
 
     for ( size_t i=0 ; i<URL_CNT ; i++ ) {
         curl_easy_setopt(pCurl, CURLOPT_URL, URL[i].c_str());

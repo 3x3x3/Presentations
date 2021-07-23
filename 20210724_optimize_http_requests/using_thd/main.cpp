@@ -15,12 +15,13 @@ void rcv_func(std::string sUrl, std::string* pRcvJson) {
     CURL *pCurl = curl_easy_init();
     CURLcode res;
 
+    curl_easy_setopt(pCurl, CURLOPT_URL, sUrl.c_str());
+    curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, pRcvJson);
     curl_easy_setopt(pCurl, CURLOPT_CUSTOMREQUEST, "GET");
     curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYPEER, false);
     curl_easy_setopt(pCurl, CURLOPT_ENCODING, "gzip");
     curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, curl_cb);
-    curl_easy_setopt(pCurl, CURLOPT_URL, sUrl.c_str());
-    curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, pRcvJson);
+    curl_easy_setopt(pCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
 
     res = curl_easy_perform(pCurl);
 
