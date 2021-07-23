@@ -1,3 +1,4 @@
-# optimize_http_requests
+# 필요한 라이브러리 설치 (ubuntu 기준)
 
-sudo apt-get install libcurl4-openssl-dev
+- libcurl
+> sudo apt-get install libcurl4-openssl-dev
