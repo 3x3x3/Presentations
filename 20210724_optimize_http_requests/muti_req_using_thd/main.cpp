@@ -6,13 +6,13 @@
 #include <unistd.h>
 
 
-size_t curl_cb(void *content, size_t size, size_t nmemb, std::string *buffer) {
+size_t curl_cb(void* content, size_t size, size_t nmemb, std::string* buffer) {
 	buffer->append((char*)content, size*nmemb);
 	return size*nmemb;
 }
 
 void rcv_func(std::string sUrl, std::string* pRcvJson) {
-    CURL *pCurl = curl_easy_init();
+    CURL* pCurl = curl_easy_init();
     CURLcode res;
 
     curl_easy_setopt(pCurl, CURLOPT_URL, sUrl.c_str());

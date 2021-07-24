@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 
-size_t curl_cb(void *content, size_t size, size_t nmemb, std::string *buffer) {
+size_t curl_cb(void* content, size_t size, size_t nmemb, std::string* buffer) {
 	buffer->append((char*)content, size*nmemb);
 	return size*nmemb;
 }
@@ -22,11 +22,11 @@ double request() {
 
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
-    CURLM *pCurlMulti = curl_multi_init();
+    CURLM* pCurlMulti = curl_multi_init();
     curl_multi_setopt(pCurlMulti, CURLMOPT_MAX_HOST_CONNECTIONS, (long) 1L);
     curl_multi_setopt(pCurlMulti, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX);
 
-    CURL *pCurls[URL_CNT];
+    CURL* pCurls[URL_CNT];
 
     for ( int i=0 ; i<URL_CNT ; i++ ) {
         pCurls[i] = curl_easy_init();

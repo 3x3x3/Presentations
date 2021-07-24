@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 
-size_t curl_cb(void *content, size_t size, size_t nmemb, std::string *buffer) {
+size_t curl_cb(void* content, size_t size, size_t nmemb, std::string* buffer) {
 	buffer->append((char*)content, size*nmemb);
 	return size*nmemb;
 }
@@ -19,7 +19,7 @@ double request() {
     
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
-    CURL *pCurl = curl_easy_init();
+    CURL* pCurl = curl_easy_init();
 
     curl_easy_setopt(pCurl, CURLOPT_CUSTOMREQUEST, "GET");
     curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYPEER, false);
