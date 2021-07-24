@@ -27,6 +27,7 @@ double request() {
     curl_easy_setopt(pCurl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
     curl_easy_setopt(pCurl, CURLOPT_URL, sURL.c_str());
     curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, &sRespJson);
+    //curl_easy_setopt(pCurl, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_TLSv1_2);
     //curl_easy_setopt(pCurl, CURLOPT_ENCODING, "gzip");
     //curl_easy_setopt(pCurl, CURLOPT_VERBOSE, 1L);
 
@@ -49,7 +50,7 @@ double request() {
 }
 
 int main() {
-    const int TRY_CNT = 3;
+    const int TRY_CNT = 5;
     double dTotTime = 0.0;
 
     for ( int i=0 ; i<TRY_CNT ; i++ ) {
