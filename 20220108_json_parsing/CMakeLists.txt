@@ -14,6 +14,7 @@ find_package(websocketpp REQUIRED)
 
 add_executable(upbit_watching
     main.cpp
+    ws_mng.cpp
 )
 
 target_link_libraries(upbit_watching
