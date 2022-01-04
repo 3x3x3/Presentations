@@ -6,6 +6,7 @@
 #include <string>
 #include <functional>
 #include <chrono>
+#include <rapidjson/document.h>
 #include "main.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +57,27 @@ void MainFrm::request_lob(int ws_id) {
 }
 
 void MainFrm::on_ws_receive(std::string msg) {
+    double bid_prc=0.0, bid_qty=0.0, ask_prc=0.0, ask_qty=0.0;
+    long long st_ts=0;
+    long long rj_ts=0;
+
+    // RapidJson
+    st_ts = get16dTs();
+
+    rapidjson::Document doc;
+    doc.Parse(msg.c_str());
+
+    const rapidjson::Value& rv_obu = doc["obu"].GetArray();
+    const rapidjson::Value& rv_data = rv_obu[0];
+
+    bid_prc = rv_data["bp"].GetDouble();
+    bid_qty = rv_data["bs"].GetDouble();
+    ask_prc = rv_data["ap"].GetDouble();
+    ask_qty = rv_data["as"].GetDouble();
+
+    rj_ts = get16dTs() - st_ts;
+    //
+
     // TODO
     
     printf("%s\n", msg.c_str());

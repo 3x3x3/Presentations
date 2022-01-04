@@ -11,6 +11,7 @@ endif()
 find_package(OpenSSL REQUIRED)
 find_package(Threads)
 find_package(websocketpp REQUIRED)
+find_package(RapidJSON)
 
 add_executable(json_parsing
     main.cpp
