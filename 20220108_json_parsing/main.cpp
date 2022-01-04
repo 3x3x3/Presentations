@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string>
 #include <functional>
+#include <chrono>
 #include "main.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +42,10 @@ void MainFrm::run_forever() {
     while (!m_is_stop) {
         sleep(10);
     }
+}
+
+long long MainFrm::get16dTs() {
+    return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
 void MainFrm::request_lob(int ws_id) {
