@@ -12,6 +12,7 @@ find_package(OpenSSL REQUIRED)
 find_package(Threads)
 find_package(websocketpp REQUIRED)
 find_package(RapidJSON)
+find_package(simdjson)
 
 add_executable(json_parsing
     main.cpp
@@ -22,4 +23,5 @@ target_link_libraries(json_parsing
     ${CMAKE_THREAD_LIBS_INIT}
     OpenSSL::SSL
     websocketpp::websocketpp
+    simdjson::simdjson
 )

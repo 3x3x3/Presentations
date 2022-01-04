@@ -50,7 +50,7 @@ long long MainFrm::get16dTs() {
 }
 
 void MainFrm::request_lob(int ws_id) {
-    std::string msg = "[{\"ticket\":\"aefeaf\"},{\"type\":\"orderbook\",\"codes\":[\"KRW-BTC.1\"]},{\"format\":\"SIMPLE\"}]";
+    std::string msg = R"([{"ticket":"tk"},{"type":"orderbook","codes":["KRW-BTC.1"]},{"format":"SIMPLE"}])";
     m_ws_mng.send(ws_id, msg);
 
     printf("Send Msg: %s\n", msg.c_str());
@@ -59,28 +59,45 @@ void MainFrm::request_lob(int ws_id) {
 void MainFrm::on_ws_receive(std::string msg) {
     double bid_prc=0.0, bid_qty=0.0, ask_prc=0.0, ask_qty=0.0;
     long long st_ts=0;
-    long long rj_ts=0;
+    long long rj_ts=0, sj_ts=0;
 
     // RapidJson
     st_ts = get16dTs();
 
-    rapidjson::Document doc;
-    doc.Parse(msg.c_str());
+    rapidjson::Document doc_rj;
+    doc_rj.Parse(msg.c_str());
 
-    const rapidjson::Value& rv_obu = doc["obu"].GetArray();
-    const rapidjson::Value& rv_data = rv_obu[0];
+    const rapidjson::Value& rv_obu_rj = doc_rj["obu"].GetArray();
+    const rapidjson::Value& rv_data_rj = rv_obu_rj[0];
 
-    bid_prc = rv_data["bp"].GetDouble();
-    bid_qty = rv_data["bs"].GetDouble();
-    ask_prc = rv_data["ap"].GetDouble();
-    ask_qty = rv_data["as"].GetDouble();
+    bid_prc = rv_data_rj["bp"].GetDouble();
+    bid_qty = rv_data_rj["bs"].GetDouble();
+    ask_prc = rv_data_rj["ap"].GetDouble();
+    ask_qty = rv_data_rj["as"].GetDouble();
 
     rj_ts = get16dTs() - st_ts;
     //
 
+    // simdjson
+    st_ts = get16dTs();
+
+    simdjson::padded_string pad_str = simdjson::padded_string(msg);
+    simdjson::ondemand::document doc_sj = m_parser_sj.iterate(pad_str);
+
+    auto data_sj = doc_sj["obu"].get_array().at(0);
+
+    bid_prc = data_sj["bp"];
+    bid_qty = data_sj["bs"];
+    ask_prc = data_sj["ap"];
+    ask_qty = data_sj["as"];
+
+    sj_ts = get16dTs() - st_ts;
+    //
+
     // TODO
     
-    printf("%s\n", msg.c_str());
+    printf("RapidJson: %lld, simdjson: %lld\n", rj_ts, sj_ts);
+    //printf("%s\n", msg.c_str());
 }
 
 int main(int argc, char* argv[]) {
