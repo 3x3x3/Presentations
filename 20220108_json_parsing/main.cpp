@@ -6,7 +6,6 @@
 #include <string>
 #include <functional>
 #include <chrono>
-#include <rapidjson/document.h>
 #include "main.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +44,7 @@ void MainFrm::run_forever() {
     }
 }
 
-long long MainFrm::get16dTs() {
+long long MainFrm::get_16d_ts() {
     return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
@@ -62,12 +61,11 @@ void MainFrm::on_ws_receive(std::string msg) {
     long long rj_ts=0, sj_ts=0;
 
     // RapidJson
-    st_ts = get16dTs();
+    st_ts = get_16d_ts();
 
-    rapidjson::Document doc_rj;
-    doc_rj.Parse(msg.c_str());
+    m_doc_rj.Parse(msg.c_str());
 
-    const rapidjson::Value& rv_obu_rj = doc_rj["obu"].GetArray();
+    const rapidjson::Value& rv_obu_rj = m_doc_rj["obu"].GetArray();
     const rapidjson::Value& rv_data_rj = rv_obu_rj[0];
 
     bid_prc = rv_data_rj["bp"].GetDouble();
@@ -75,15 +73,14 @@ void MainFrm::on_ws_receive(std::string msg) {
     ask_prc = rv_data_rj["ap"].GetDouble();
     ask_qty = rv_data_rj["as"].GetDouble();
 
-    rj_ts = get16dTs() - st_ts;
+    rj_ts = get_16d_ts() - st_ts;
     //
 
     // simdjson
-    st_ts = get16dTs();
+    st_ts = get_16d_ts();
 
-    simdjson::padded_string pad_str = simdjson::padded_string(msg);
-    simdjson::ondemand::document doc_sj = m_parser_sj.iterate(pad_str);
-
+    const char* c_msg = msg.c_str();
+    simdjson::ondemand::document doc_sj = m_parser_sj.iterate(simdjson::padded_string_view(c_msg, strlen(c_msg), 1024));
     auto data_sj = doc_sj["obu"].get_array().at(0);
 
     bid_prc = data_sj["bp"];
@@ -91,7 +88,7 @@ void MainFrm::on_ws_receive(std::string msg) {
     ask_prc = data_sj["ap"];
     ask_qty = data_sj["as"];
 
-    sj_ts = get16dTs() - st_ts;
+    sj_ts = get_16d_ts() - st_ts;
     //
 
     // TODO

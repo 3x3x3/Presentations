@@ -1,8 +1,9 @@
 // main.h
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "ws_mng.h"
 #include <simdjson.h>
+#include <rapidjson/document.h>
+#include "ws_mng.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,9 +17,11 @@ public:
     void on_ws_receive(std::string msg);
 
 protected:
-    long long get16dTs();
+    long long get_16d_ts();
 
     WsMng m_ws_mng;
     bool m_is_stop;
+
+    rapidjson::Document m_doc_rj;
     simdjson::ondemand::parser m_parser_sj;
 };
