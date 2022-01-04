@@ -43,12 +43,11 @@ void MainFrm::run_forever() {
     }
 }
 
-void request_lob(int ws_id) {
-    // TODO
-
-    std::string msg = "";
-
+void MainFrm::request_lob(int ws_id) {
+    std::string msg = "[{\"ticket\":\"aefeaf\"},{\"type\":\"orderbook\",\"codes\":[\"KRW-BTC.1\"]},{\"format\":\"SIMPLE\"}]";
     m_ws_mng.send(ws_id, msg);
+
+    printf("Send Msg: %s\n", msg.c_str());
 }
 
 void MainFrm::on_ws_receive(std::string msg) {

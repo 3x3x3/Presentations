@@ -12,12 +12,13 @@ find_package(OpenSSL REQUIRED)
 find_package(Threads)
 find_package(websocketpp REQUIRED)
 
-add_executable(upbit_watching
+add_executable(json_parsing
     main.cpp
     ws_mng.cpp
 )
 
-target_link_libraries(upbit_watching
+target_link_libraries(json_parsing
+    ${CMAKE_THREAD_LIBS_INIT}
     OpenSSL::SSL
     websocketpp::websocketpp
 )
