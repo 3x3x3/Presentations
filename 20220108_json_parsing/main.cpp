@@ -57,9 +57,11 @@ void MainFrm::request_lob(int ws_id) {
 }
 
 void MainFrm::on_ws_receive(std::string msg) {
+    //printf("%s\n", msg.c_str());
+
     double bid_prc=0.0, bid_qty=0.0, ask_prc=0.0, ask_qty=0.0;
     long long st_ts=0;
-    long long rj_ts=0, sj_ts=0;
+    long long rj_ts=0, sj_ts=0, jt_ts=0;
 
     // RapidJson
     st_ts = get_16d_ts();
@@ -92,15 +94,46 @@ void MainFrm::on_ws_receive(std::string msg) {
     sj_ts = get_16d_ts() - st_ts;
     //
 
-    // TODO
-    JSONTokenizer tokenizer(msg);
-    while(tokenizer) {
-        printf("%s\n", tokenizer.front().data());
-        tokenizer.pop();
+    // JSONTokenizer
+    st_ts = get_16d_ts();
+    int parsing_cnt = 0;
+
+    JSONTokenizer1 tokenizer1(msg);
+    while(tokenizer1) {
+        const std::string_view token = tokenizer1.front();
+
+        if ( "bp" == token ) {
+            tokenizer1.pop();
+            bid_prc = atof(tokenizer1.front().data());
+            parsing_cnt++;
+        }
+        else if ( "bs" == token ) {
+            tokenizer1.pop();
+            bid_qty = atof(tokenizer1.front().data());
+            parsing_cnt++;
+        }
+        else if ( "ap" == token ) {
+            tokenizer1.pop();
+            ask_prc = atof(tokenizer1.front().data());
+            parsing_cnt++;
+        }
+        else if ( "as" == token ) { 
+            tokenizer1.pop();
+            ask_qty = atof(tokenizer1.front().data());
+            parsing_cnt++;
+        }
+
+        if ( 4 == parsing_cnt ) {
+            break;
+        }
+
+        tokenizer1.pop();
     }
+
+    jt_ts = get_16d_ts() - st_ts;
+    //
     
-    printf("RapidJson: %lld, simdjson: %lld\n", rj_ts, sj_ts);
-    printf("%s\n", msg.c_str());
+    printf("RapidJson: %lld, simdjson: %lld, JSONTokenizer1: %lld\n", rj_ts, sj_ts, jt_ts);
 }
 
 int main(int argc, char* argv[]) {
