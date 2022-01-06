@@ -43,7 +43,7 @@ void JSONTokenizer::pop() {
         // 문자열 아니면 실수일 것이다
         assert(std::isdigit(*p) || *p == '-');
         char* q = (char*)p + 1;
-        while(isdigit(*q) || *q == '.' || *q == 'e' || *q == '+') ++q;
+        while(std::isdigit(*q) || *q == '.' || *q == 'e' || *q == '+') ++q;
         *q = 0;
         next_token = std::string_view(p, q-p);
         p = q;

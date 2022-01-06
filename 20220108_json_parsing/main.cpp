@@ -93,13 +93,11 @@ void MainFrm::on_ws_receive(std::string msg) {
     //
 
     // TODO
-    /*
     JSONTokenizer tokenizer(msg);
     while(tokenizer) {
         printf("%s\n", tokenizer.front().data());
         tokenizer.pop();
     }
-    */
     
     printf("RapidJson: %lld, simdjson: %lld\n", rj_ts, sj_ts);
     printf("%s\n", msg.c_str());
