@@ -7,6 +7,7 @@
 #include <functional>
 #include <chrono>
 #include "main.h"
+#include "custom_parser.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -92,9 +93,16 @@ void MainFrm::on_ws_receive(std::string msg) {
     //
 
     // TODO
+    /*
+    JSONTokenizer tokenizer(msg);
+    while(tokenizer) {
+        printf("%s\n", tokenizer.front().data());
+        tokenizer.pop();
+    }
+    */
     
     printf("RapidJson: %lld, simdjson: %lld\n", rj_ts, sj_ts);
-    //printf("%s\n", msg.c_str());
+    printf("%s\n", msg.c_str());
 }
 
 int main(int argc, char* argv[]) {

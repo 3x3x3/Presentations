@@ -17,6 +17,7 @@ find_package(simdjson)
 add_executable(json_parsing
     main.cpp
     ws_mng.cpp
+    custom_parser.cpp
 )
 
 target_link_libraries(json_parsing
