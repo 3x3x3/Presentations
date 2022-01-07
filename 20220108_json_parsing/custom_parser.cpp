@@ -4,6 +4,7 @@
 #include "custom_parser.h"
 #include <cctype>
 #include <cassert>
+#include <string>
 
 JSONTokenizer::JSONTokenizer(std::string_view s): p(s.data()), end(s.data() + s.size()) {
     pop(); // 첫 번째 토큰을 찾는다
@@ -52,4 +53,87 @@ void JSONTokenizer::pop() {
         next_token = std::string_view(p, q-p);
         p = q + 1;
     }
+}
+
+JSONParser::JSONParser(std::string_view json_str): p(json_str.size()), buf(json_str) {
+
+}
+
+// starts from ix, consumes a value. returns false when it meets a closing delimiter or end of string.
+bool JSONParser::consume(int& ix) {
+    int start = ix;
+    int begin;
+    while(std::isspace(buf[ix]) || buf[ix] == ':' || buf[ix] == ',') ++ix;
+    assert(buf[ix] != '\0'); // buf did not prematurely end
+
+    switch(buf[ix]) {
+        case ']': // fall through
+        case '}':
+            ix++; // we still consume ending delimiters!
+            begin = -1;
+            break;
+        case '"':
+            begin = ix++;
+            while(buf[ix] != '"') ++ix;
+            ++ix; // consume the closing quote
+            break;
+        case '[':
+            begin = ix++;
+            while(consume(ix));
+            // closing delimiter is already consumed
+            break;
+        case '{':
+            begin = ix++;
+            while(consume(ix)) {} // value always comes in pairs in objects
+            // closing delimiter is already consumed
+            break;
+        case 't': // true
+            begin = ix;
+            ix += 4;
+            break;
+        case 'f': // false
+            begin = ix;
+            ix += 5;
+            break;
+        default:
+            begin = ix;
+            while(std::isdigit(buf[ix]) || buf[ix] == 'e' || buf[ix] == 'E' || buf[ix] == '-' || buf[ix] == '+' || buf[ix] == '.') { ++ix; }
+            break;
+    }
+
+    p[start].begin = begin;
+    p[start].end = ix;
+
+    return begin >= 0;
+}
+
+StrPos& JSONParser::find_value_pos(const int& st, std::string_view key) {
+    StrPos& cur = p[st];
+
+    while (0 < cur.begin) {
+        if ( buf[cur.begin] == '"' && buf[cur.begin+1] == key[0] && buf[cur.begin+2] == key[1] ) {
+            cur = p[cur.end];
+            break;
+        }
+        else {
+            cur = p[cur.end];
+        }
+    }
+
+    return cur;
+}
+
+StrPos& JSONParser::find_value_pos(const int& st, const int& idx) {
+    StrPos& cur = p[st];
+
+    for ( int i=0 ; i<idx ; i++ ) {
+        cur = p[cur.end];
+    }
+    
+    return cur;
+}
+
+double JSONParser::find_value(const int& st, std::string_view key) {
+    StrPos& cur = find_value_pos(st, key);
+    return std::stod(std::string(&buf[cur.begin], cur.end-cur.begin));
 }
