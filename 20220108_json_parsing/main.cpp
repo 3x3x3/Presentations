@@ -97,6 +97,7 @@ void MainFrm::on_ws_receive(std::string msg) {
     calc_ts[1] = get_16d_ts() - st_ts;
     //
 
+    /*
     // JSONTokenizer
     st_ts = get_16d_ts();
     int parsing_cnt = 0;
@@ -112,22 +113,22 @@ void MainFrm::on_ws_receive(std::string msg) {
         }
         else if ( 'b' == token[0] && 'p' == token[1] ) {
             tokenizer.pop();
-            bid_prc[2] = std::stod(tokenizer.front().data());
+            bid_prc[2] = atof(tokenizer.front().data());
             parsing_cnt++;
         }
         else if ( 'b' == token[0] && 's' == token[1] ) {
             tokenizer.pop();
-            bid_qty[2] = std::stod(tokenizer.front().data());
+            bid_qty[2] = atof(tokenizer.front().data());
             parsing_cnt++;
         }
         else if ( 'a' == token[0] && 'p' == token[1] ) {
             tokenizer.pop();
-            ask_prc[2] = std::stod(tokenizer.front().data());
+            ask_prc[2] = atof(tokenizer.front().data());
             parsing_cnt++;
         }
         else if ( 'a' == token[0] && 's' == token[1] ) { 
             tokenizer.pop();
-            ask_qty[2] = std::stod(tokenizer.front().data());
+            ask_qty[2] = atof(tokenizer.front().data());
             parsing_cnt++;
         }
         
@@ -140,8 +141,8 @@ void MainFrm::on_ws_receive(std::string msg) {
 
     calc_ts[2] = get_16d_ts() - st_ts;
     //
+    */
 
-    /*
     // JSONParser
     st_ts = get_16d_ts();
 
@@ -153,7 +154,7 @@ void MainFrm::on_ws_receive(std::string msg) {
     StrPos cd_pos = parser.find_value_pos(cur, "cd");
     asset_code[2] = std::string_view(&parser.buf[cd_pos.begin+1], cd_pos.end-cd_pos.begin-1);
     StrPos obu_pos = parser.find_value_pos(cur, "ob");
-    StrPos lob2 = parser.find_value_pos(obu_pos.begin+1, 2);
+    StrPos lob2 = parser.find_value_pos(obu_pos.begin+1, 0);
 
     ask_prc[2] = parser.find_value(lob2.begin+1, "ap");
     bid_prc[2] = parser.find_value(lob2.begin+1, "bp");
@@ -162,7 +163,6 @@ void MainFrm::on_ws_receive(std::string msg) {
 
     calc_ts[2] = get_16d_ts() - st_ts;
     //
-    */
     
     printf("RapidJson: %lld, simdjson: %lld, JSONtokenizer: %lld\n", calc_ts[0], calc_ts[1], calc_ts[2]);
 

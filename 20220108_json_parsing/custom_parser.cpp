@@ -135,5 +135,6 @@ StrPos& JSONParser::find_value_pos(const int& st, const int& idx) {
 
 double JSONParser::find_value(const int& st, std::string_view key) {
     StrPos& cur = find_value_pos(st, key);
-    return std::stod(std::string(&buf[cur.begin], cur.end-cur.begin));
+    std::string tmp = std::string(&buf[cur.begin], cur.end-cur.begin);
+    return atof(tmp.c_str());
 }
