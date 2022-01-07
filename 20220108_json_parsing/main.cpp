@@ -11,6 +11,10 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define LOB_IDX 0
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 MainFrm::MainFrm() {
     m_is_stop = false;
 }
@@ -70,7 +74,7 @@ void MainFrm::on_ws_receive(std::string msg) {
     m_doc_rj.Parse(msg.c_str());
 
     const rapidjson::Value& rv_obu_rj = m_doc_rj["obu"].GetArray();
-    const rapidjson::Value& rv_data_rj = rv_obu_rj[0];
+    const rapidjson::Value& rv_data_rj = rv_obu_rj[LOB_IDX];
 
     asset_code[0] = m_doc_rj["cd"].GetString();
     ask_prc[0] = rv_data_rj["ap"].GetDouble();
@@ -88,7 +92,7 @@ void MainFrm::on_ws_receive(std::string msg) {
     simdjson::ondemand::document doc_sj = m_parser_sj.iterate(simdjson::padded_string_view(tmp, 256));
 
     asset_code[1] = std::string_view(doc_sj["cd"]);
-    auto data_sj = doc_sj["obu"].get_array().at(0);
+    auto data_sj = doc_sj["obu"].get_array().at(LOB_IDX);
     ask_prc[1] = data_sj["ap"].get_double();
     bid_prc[1] = data_sj["bp"].get_double();
     ask_qty[1] = data_sj["as"].get_double();
@@ -97,7 +101,6 @@ void MainFrm::on_ws_receive(std::string msg) {
     calc_ts[1] = get_16d_ts() - st_ts;
     //
 
-    /*
     // JSONTokenizer
     st_ts = get_16d_ts();
     int parsing_cnt = 0;
@@ -141,8 +144,8 @@ void MainFrm::on_ws_receive(std::string msg) {
 
     calc_ts[2] = get_16d_ts() - st_ts;
     //
-    */
 
+    /*
     // JSONParser
     st_ts = get_16d_ts();
 
@@ -154,7 +157,7 @@ void MainFrm::on_ws_receive(std::string msg) {
     StrPos cd_pos = parser.find_value_pos(cur, "cd");
     asset_code[2] = std::string_view(&parser.buf[cd_pos.begin+1], cd_pos.end-cd_pos.begin-1);
     StrPos obu_pos = parser.find_value_pos(cur, "ob");
-    StrPos lob2 = parser.find_value_pos(obu_pos.begin+1, 0);
+    StrPos lob2 = parser.find_value_pos(obu_pos.begin+1, LOB_IDX);
 
     ask_prc[2] = parser.find_value(lob2.begin+1, "ap");
     bid_prc[2] = parser.find_value(lob2.begin+1, "bp");
@@ -163,6 +166,7 @@ void MainFrm::on_ws_receive(std::string msg) {
 
     calc_ts[2] = get_16d_ts() - st_ts;
     //
+    */
     
     printf("RapidJson: %lld, simdjson: %lld, JSONtokenizer: %lld\n", calc_ts[0], calc_ts[1], calc_ts[2]);
 
