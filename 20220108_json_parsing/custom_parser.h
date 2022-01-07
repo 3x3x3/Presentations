@@ -5,9 +5,9 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class JSONTokenizer1 {
+class JSONTokenizer {
 public:
-    JSONTokenizer1(std::string_view s);
+    JSONTokenizer(std::string_view s);
 
     // 토큰이 남았으면 true, 더 없으면 false
     operator bool() const { return p < end; }
@@ -19,8 +19,4 @@ protected:
     std::string_view next_token; // 이번 토큰
 	const char *p;					// 다음 토큰을 찾기 시작할 위치
 	const char *end;				// end of buffer
-};
-
-class JSONTokenizer2: public JSONTokenizer1 {
-
 };

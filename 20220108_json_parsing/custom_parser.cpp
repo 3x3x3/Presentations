@@ -5,18 +5,18 @@
 #include <cctype>
 #include <cassert>
 
-JSONTokenizer1::JSONTokenizer1(std::string_view s): p(s.data()), end(s.data() + s.size()) {
+JSONTokenizer::JSONTokenizer(std::string_view s): p(s.data()), end(s.data() + s.size()) {
     pop(); // 첫 번째 토큰을 찾는다
 }
 
 // 지금 맨 앞에 있는 토큰을 반환한다.
-std::string_view JSONTokenizer1::front() {
+std::string_view JSONTokenizer::front() {
     assert(p < end);
     return next_token;
 }
 
 // 다음 토큰을 찾아서 next_token 에 저장한다.
-void JSONTokenizer1::pop() {
+void JSONTokenizer::pop() {
     // 1. 토큰 시작 위치 찾기: 경계 문자가 아닌 문자가 나올 때까지 p를 전진시킨다.
     while(p < end && (*p == '{' || *p == '[' || *p == '}' || *p == ']' ||
                                         *p == ':' || *p == ' ' || *p == '\t' || *p == ',')) {

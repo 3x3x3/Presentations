@@ -50,7 +50,7 @@ long long MainFrm::get_16d_ts() {
 }
 
 void MainFrm::request_lob(int ws_id) {
-    std::string msg = R"([{"ticket":"tk"},{"type":"orderbook","codes":["KRW-BTC.1"]},{"format":"SIMPLE"}])";
+    std::string msg = R"([{"ticket":"tk"},{"type":"orderbook","codes":["KRW-BTC.10"]},{"format":"SIMPLE"}])";
     m_ws_mng.send(ws_id, msg);
 
     printf("Send Msg: %s\n", msg.c_str());
@@ -59,9 +59,10 @@ void MainFrm::request_lob(int ws_id) {
 void MainFrm::on_ws_receive(std::string msg) {
     //printf("%s\n", msg.c_str());
 
-    double bid_prc=0.0, bid_qty=0.0, ask_prc=0.0, ask_qty=0.0;
+    std::string_view asset_code[3];
+    double bid_prc[3]={0.0,}, bid_qty[3]={0.0,}, ask_prc[3]={0.0,}, ask_qty[3]={0.0,};
     long long st_ts=0;
-    long long rj_ts=0, sj_ts=0, jt_ts=0;
+    long long calc_ts[3]={0,};
 
     // RapidJson
     st_ts = get_16d_ts();
@@ -71,27 +72,29 @@ void MainFrm::on_ws_receive(std::string msg) {
     const rapidjson::Value& rv_obu_rj = m_doc_rj["obu"].GetArray();
     const rapidjson::Value& rv_data_rj = rv_obu_rj[0];
 
-    bid_prc = rv_data_rj["bp"].GetDouble();
-    bid_qty = rv_data_rj["bs"].GetDouble();
-    ask_prc = rv_data_rj["ap"].GetDouble();
-    ask_qty = rv_data_rj["as"].GetDouble();
+    asset_code[0] = m_doc_rj["cd"].GetString();
+    ask_prc[0] = rv_data_rj["ap"].GetDouble();
+    bid_prc[0] = rv_data_rj["bp"].GetDouble();
+    ask_qty[0] = rv_data_rj["as"].GetDouble();
+    bid_qty[0] = rv_data_rj["bs"].GetDouble();
 
-    rj_ts = get_16d_ts() - st_ts;
+    calc_ts[0] = get_16d_ts() - st_ts;
     //
 
     // simdjson
     st_ts = get_16d_ts();
 
-    const char* c_msg = msg.c_str();
-    simdjson::ondemand::document doc_sj = m_parser_sj.iterate(simdjson::padded_string_view(c_msg, strlen(c_msg), 1024));
+    std::string_view tmp = msg;
+    simdjson::ondemand::document doc_sj = m_parser_sj.iterate(simdjson::padded_string_view(tmp, 256));
+
+    asset_code[1] = std::string_view(doc_sj["cd"]);
     auto data_sj = doc_sj["obu"].get_array().at(0);
+    ask_prc[1] = data_sj["ap"].get_double();
+    bid_prc[1] = data_sj["bp"].get_double();
+    ask_qty[1] = data_sj["as"].get_double();
+    bid_qty[1] = data_sj["bs"].get_double();
 
-    bid_prc = data_sj["bp"];
-    bid_qty = data_sj["bs"];
-    ask_prc = data_sj["ap"];
-    ask_qty = data_sj["as"];
-
-    sj_ts = get_16d_ts() - st_ts;
+    calc_ts[1] = get_16d_ts() - st_ts;
     //
 
     // JSONTokenizer
@@ -100,40 +103,50 @@ void MainFrm::on_ws_receive(std::string msg) {
 
     JSONTokenizer tokenizer(msg);
     while(tokenizer) {
-        const std::string_view token = tokenizer.front();
-
-        if ( "bp" == token ) {
+        const char* token = tokenizer.front().data();
+ 
+        if ( 'c' == token[0] && 'd' == token[1] ) {
             tokenizer.pop();
-            bid_prc = atof(tokenizer.front().data());
+            asset_code[2] = tokenizer.front();
             parsing_cnt++;
         }
-        else if ( "bs" == token ) {
+        else if ( 'b' == token[0] && 'p' == token[1] ) {
             tokenizer.pop();
-            bid_qty = atof(tokenizer.front().data());
+            bid_prc[2] = atof(tokenizer.front().data());
             parsing_cnt++;
         }
-        else if ( "ap" == token ) {
+        else if ( 'b' == token[0] && 's' == token[1] ) {
             tokenizer.pop();
-            ask_prc = atof(tokenizer.front().data());
+            bid_qty[2] = atof(tokenizer.front().data());
             parsing_cnt++;
         }
-        else if ( "as" == token ) { 
+        else if ( 'a' == token[0] && 'p' == token[1] ) {
             tokenizer.pop();
-            ask_qty = atof(tokenizer.front().data());
+            ask_prc[2] = atof(tokenizer.front().data());
             parsing_cnt++;
         }
-
-        if ( 4 == parsing_cnt ) {
+        else if ( 'a' == token[0] && 's' == token[1] ) { 
+            tokenizer.pop();
+            ask_qty[2] = atof(tokenizer.front().data());
+            parsing_cnt++;
+        }
+        
+        if ( 5 == parsing_cnt ) {
             break;
         }
 
         tokenizer.pop();
     }
 
-    jt_ts = get_16d_ts() - st_ts;
+    calc_ts[2] = get_16d_ts() - st_ts;
     //
     
-    printf("RapidJson: %lld, simdjson: %lld, JSONtokenizer: %lld\n", rj_ts, sj_ts, jt_ts);
+    printf("RapidJson: %lld, simdjson: %lld, JSONtokenizer: %lld\n", calc_ts[0], calc_ts[1], calc_ts[2]);
+
+    for ( int i=0 ; i<3 ; i++ ) {
+        std::string cd = std::string(asset_code[i].data(), asset_code[i].size());
+        printf("idx: %d, cd: %s, ap: %lf, bp: %lf, aq: %lf, bq: %lf\n", i, cd.c_str(), ask_prc[i], bid_prc[i], ask_qty[i], bid_qty[i]);
+    }
 }
 
 int main(int argc, char* argv[]) {
