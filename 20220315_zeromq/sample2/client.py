@@ -3,10 +3,10 @@ import threading
 
 
 def run(sub_filter: str):
-    ctx = zmq.Context()
+    ctx = zmq.Context.instance()
     sock = ctx.socket(zmq.SUB)
     sock.connect(f'tcp://localhost:5556')
-    sock.setsockopt(zmq.SUBSCRIBE, sub_filter.encode())
+    sock.set(zmq.SUBSCRIBE, sub_filter.encode())
 
     while True:
         msg = sock.recv()
