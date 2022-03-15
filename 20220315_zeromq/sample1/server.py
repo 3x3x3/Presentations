@@ -8,10 +8,10 @@ def main():
 
     while True:
         msg = socket.recv()
-        print('rcv:', msg)
+        print('recv:', msg)
 
         socket.send(msg)
-        print('req:', msg)
+        print('send:', msg)
 
 
 if __name__ == '__main__':

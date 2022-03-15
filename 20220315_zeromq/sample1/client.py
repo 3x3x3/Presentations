@@ -12,12 +12,14 @@ def main():
         req_msg = req_msg.encode()
 
         socket.send(req_msg)
-        print('req:', req_msg)
+        print('send:', req_msg)
 
         msg = socket.recv()
-        print('rcv:', msg)
+        print('recv:', msg)
 
         time.sleep(1)
+
+    socket.close()
 
 
 if __name__ == '__main__':
