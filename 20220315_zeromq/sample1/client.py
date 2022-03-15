@@ -1,13 +1,17 @@
 import zmq
+import time
 
 context = zmq.Context()
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")
 
-req_msg = b'Hello World'
+for i in range(10):
+    req_msg = f'Hello World {i}'
 
-socket.send(req_msg)
-print('req:', req_msg)
+    socket.send(req_msg.encode())
+    print('req:', req_msg)
 
-msg = socket.recv()
-print('rcv:', msg)
+    msg = socket.recv()
+    print('rcv:', msg)
+
+    time.sleep(1)
