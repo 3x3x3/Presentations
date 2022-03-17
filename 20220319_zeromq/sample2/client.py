@@ -1,25 +1,22 @@
+import sys
 import zmq
-import threading
 
 
-def run(sub_filter: str):
+def main(argv):
+    channel = ''
+
+    if 2 == len(argv):
+        channel = argv[1]
+
     ctx = zmq.Context.instance()
     sock = ctx.socket(zmq.SUB)
     sock.connect(f'tcp://localhost:5556')
-    sock.set(zmq.SUBSCRIBE, sub_filter.encode())
+    sock.set(zmq.SUBSCRIBE, channel.encode())
 
     while True:
         msg = sock.recv()
-        print(f'sub_filter: {sub_filter}, rcv: {msg}')
+        print(f'channel: {channel}, rcv: {msg}')
 
 
 if __name__ == '__main__':
-    thds = list()
-
-    for i in range(5):
-        thd = threading.Thread(target=run, args=(f'{i}',))
-        thd.start()
-        thds.append(thd)
-
-    for thd in thds:
-        thd.join()
+    main(sys.argv)
