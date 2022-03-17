@@ -1,5 +1,6 @@
 import sys
 import zmq
+import time
 
 
 def main(argv):
@@ -14,8 +15,11 @@ def main(argv):
     sock.set(zmq.SUBSCRIBE, channel.encode())
 
     while True:
-        msg = sock.recv()
-        print(f'channel: {channel}, rcv: {msg}')
+        try:
+            msg = sock.recv(zmq.DONTWAIT)
+            print(f'channel: {channel}, rcv: {msg}')
+        except zmq.Again:
+            time.sleep(0.01)
 
 
 if __name__ == '__main__':
