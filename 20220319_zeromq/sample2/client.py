@@ -11,7 +11,7 @@ def main(argv):
 
     ctx = zmq.Context.instance()
     sock = ctx.socket(zmq.SUB)
-    sock.connect(f'tcp://localhost:5556')
+    sock.connect(f'tcp://127.0.0.1:5556')
     sock.set(zmq.SUBSCRIBE, channel.encode())
 
     while True:
