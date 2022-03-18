@@ -10,9 +10,15 @@ def main():
 
     try:
         while True:
-            msg = f'{random.randrange(0, 5)}-{random.randrange(0, 100)}'
-            socket.send(msg.encode())
-            print('send:', msg)
+            topic = f'{random.randrange(0, 5)}'
+            msg = f'{random.randrange(0, 100)}'
+
+            tot_msg = f'{topic}-{msg}'
+
+            socket.send_string(tot_msg)
+            #socket.send_multipart([topic.encode(), msg.encode()])
+
+            print('send:', tot_msg)
 
             time.sleep(0.5)
 
