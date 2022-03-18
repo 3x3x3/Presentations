@@ -10,14 +10,8 @@ def main():
     back = ctx.socket(zmq.DEALER)
     back.bind('tcp://127.0.0.1:5558')
 
-    zmq.proxy(front, back)
-
-
-if __name__ == '__main__':
-    print('start')
-
     try:
-        thd = threading.Thread(target=main, daemon=True)
+        thd = threading.Thread(target=zmq.proxy, args=(front, back, ), daemon=True)
         thd.start()
 
         while True:
@@ -26,4 +20,12 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
 
+    front.close()
+    back.close()
+    ctx.term()
+
+
+if __name__ == '__main__':
+    print('start')
+    main()
     print('end')

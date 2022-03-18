@@ -20,6 +20,7 @@ def main():
         time.sleep(1)
 
     socket.close()
+    ctx.term()
 
 
 if __name__ == '__main__':

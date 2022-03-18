@@ -26,6 +26,7 @@ def main():
         pass
 
     socket.close()
+    ctx.term()
 
 
 if __name__ == '__main__':
