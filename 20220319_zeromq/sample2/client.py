@@ -18,8 +18,9 @@ def main(argv):
         while True:
             try:
                 msg = socket.recv(zmq.DONTWAIT)
-                #topic, msg = socket.recv_multipart(zmq.DONTWAIT)
-                print(f'topic: {topic}, rcv: {msg}')
+                #msg = socket.recv_multipart(zmq.DONTWAIT)
+
+                print(f'input topic: {topic}, rcv: {msg}')
             except zmq.Again:
                 time.sleep(0.01)
     except KeyboardInterrupt:
