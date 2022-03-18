@@ -3,8 +3,8 @@ import time
 
 
 def main():
-    context = zmq.Context()
-    socket = context.socket(zmq.REQ)
+    ctx = zmq.Context()
+    socket = ctx.socket(zmq.REQ)
     socket.connect("tcp://localhost:5555")
 
     for i in range(10):

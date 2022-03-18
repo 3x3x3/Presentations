@@ -2,8 +2,8 @@ import zmq
 
 
 def main():
-    context = zmq.Context()
-    socket = context.socket(zmq.REP)
+    ctx = zmq.Context()
+    socket = ctx.socket(zmq.REP)
     socket.bind("tcp://*:5555")
 
     while True:
