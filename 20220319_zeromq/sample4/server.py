@@ -6,7 +6,7 @@ import zmq
 def main():
     ctx = zmq.Context()
     socket = ctx.socket(zmq.ROUTER)
-    socket.bind("tcp://*:5560")
+    socket.bind('tcp://*:5560')
 
     try:
         while True:

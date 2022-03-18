@@ -6,7 +6,7 @@ import random
 def main():
     ctx = zmq.Context.instance()
     socket = ctx.socket(zmq.PUB)
-    socket.bind("tcp://*:5556")
+    socket.bind('tcp://*:5556')
 
     try:
         while True:

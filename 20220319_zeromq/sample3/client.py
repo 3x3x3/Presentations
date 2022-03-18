@@ -12,7 +12,7 @@ def main(argv):
 
     ctx = zmq.Context()
     socket = ctx.socket(zmq.REQ)
-    socket.connect("tcp://127.0.0.1:5557")
+    socket.connect('tcp://127.0.0.1:5557')
 
     try:
         for i in range(100):

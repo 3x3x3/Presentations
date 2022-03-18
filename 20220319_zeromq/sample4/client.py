@@ -11,7 +11,7 @@ def main(argv):
 
     ctx = zmq.Context()
     socket = ctx.socket(zmq.DEALER)
-    socket.connect("tcp://127.0.0.1:5560")
+    socket.connect('tcp://127.0.0.1:5560')
 
     try:
         send_cnt = 0

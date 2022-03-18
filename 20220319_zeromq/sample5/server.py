@@ -4,6 +4,7 @@ import threading
 import json
 import time
 import queue
+import uuid
 
 is_run = True
 ws_req_queue = queue.Queue()
@@ -38,8 +39,22 @@ def ws_req_handler(ws):
 
     while True:
         try:
-            req = ws_req_queue.get_nowait()
-            ws.send(req)
+            req_symbols = ws_req_queue.get_nowait()
+
+            send_dict = [{
+                'ticket': str(uuid.uuid4())
+            }, {
+                'type': 'trade',
+                'codes': req_symbols
+            }, {
+                'format': 'SIMPLE'
+            }]
+
+            send_json = json.dumps(send_dict)
+            ws.send(send_json)
+
+            print('send to upbit:', send_dict)
+
         except queue.Empty:
             time.sleep(1)
 
@@ -48,7 +63,8 @@ def zmq_heartbeat_handler(socket):
     global subscribers
     global sub_symbols
 
-    send_bin = json.dumps({'task': 'ping'}).encode()
+    send_bin = json.dumps({'ty': 'ping'}).encode()
+    del_addrs = list()
 
     while True:
         cur_ts = time.time()
@@ -61,12 +77,23 @@ def zmq_heartbeat_handler(socket):
                 for symbol in symbols:
                     sub_symbols[symbol].remove(addr)
 
-                del (subscribers[addr])
+                del_addrs.append(addr)
 
                 continue
 
             send = [addr, send_bin]
             socket.send_multipart(send)
+
+            print('send to client:', send)
+
+        if 0 < len(del_addrs):
+            for addr in del_addrs:
+                del (subscribers[addr])
+
+            print('disconnected:', del_addrs)
+            del_addrs.clear()
+
+        time.sleep(5)
 
 
 def zmq_rcv_handler(socket):
@@ -80,14 +107,14 @@ def zmq_rcv_handler(socket):
             print('rcv from client:', rcv)
 
             rcv_dict = json.loads(rcv.decode())
-            task = rcv_dict.get('task')
+            ty = rcv_dict.get('ty')
 
-            if 'pong' == task:
+            if 'pong' == ty:
                 subscriber = subscribers.get(addr)
                 if subscriber is not None:
                     subscriber['hb_ts'] = time.time()
 
-            elif 'subscribe' == task:
+            elif 'subscribe' == ty:
                 if addr not in subscribers:
                     subscribers[addr] = {
                         'hb_ts': time.time(),
@@ -104,7 +131,11 @@ def zmq_rcv_handler(socket):
 
                     sub_symbols[symbol].add(addr)
 
-                ws_req_queue.put(symbols)
+                req_symbols = list()
+                for symbol in sub_symbols:
+                    req_symbols.append(symbol)
+
+                ws_req_queue.put(req_symbols)
 
         except zmq.Again:
             time.sleep(0.01)
@@ -116,11 +147,10 @@ def zmq_send_handler(socket):
 
     while True:
         try:
-            rcv_str = ws_rcv_queue.get_nowait()
-            rcv_bin = rcv_str.encode()
-            rcv_dict = json.loads(rcv_str)
+            rcv_bin: bytes = ws_rcv_queue.get_nowait()
+            rcv_dict = json.loads(rcv_bin.decode())
 
-            symbol = rcv_dict.get('code')
+            symbol = rcv_dict.get('cd')
             addrs = sub_symbols.get(symbol, [])
 
             for addr in addrs:
@@ -136,7 +166,7 @@ def zmq_handler():
 
     ctx = zmq.Context()
     socket = ctx.socket(zmq.ROUTER)
-    socket.bind("tcp://*:5560")
+    socket.bind('tcp://*:5570')
 
     zmq_rcv_thd = threading.Thread(target=zmq_rcv_handler, args=(socket,), daemon=True)
     zmq_rcv_thd.start()
@@ -155,8 +185,8 @@ def zmq_handler():
 
 
 def main():
-    websocket.enableTrace(True)
-    ws_url = "wss://api.upbit.com/websocket/v1"
+    #websocket.enableTrace(True)
+    ws_url = 'wss://api.upbit.com/websocket/v1'
     ws_obj = websocket.WebSocketApp(ws_url, on_open=ws_open, on_message=ws_msg, on_error=ws_err, on_close=ws_close)
     ws_thd = threading.Thread(target=ws_obj.run_forever)
     ws_thd.start()

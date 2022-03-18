@@ -5,7 +5,7 @@ import time
 def main():
     ctx = zmq.Context()
     socket = ctx.socket(zmq.REP)
-    socket.connect("tcp://127.0.0.1:5558")
+    socket.connect('tcp://127.0.0.1:5558')
 
     try:
         while True:
