@@ -6,3 +6,7 @@ build*/
 
 # pycharm
 .idea/
+
+# setting files
+*.json
+*.ini
