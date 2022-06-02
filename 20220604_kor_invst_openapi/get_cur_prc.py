@@ -21,7 +21,7 @@ def main(shtcode: str) -> None:
     }
 
     path = '/uapi/domestic-stock/v1/quotations/inquire-price'
-    req_url = f'{common.BASE_DEV_REST_URL}/{path}'
+    req_url = f'{common.BASE_DEV_REST_URL}{path}'
 
     resp = requests.get(req_url, headers=req_header, params=req_body).json()
     pprint.pprint(resp)
