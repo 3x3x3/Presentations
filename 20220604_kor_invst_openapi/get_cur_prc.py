@@ -4,8 +4,8 @@ import common
 
 
 def main(shtcode: str) -> None:
-    app_key, app_secret = common.get_keys('config.ini')
-    token_type, acc_token = common.get_acc_token(app_key, app_secret)
+    app_key, app_secret = common.get_keys('config_dev.ini')
+    token_type, acc_token = common.get_acc_token(app_key, app_secret, 'acc_token_dev.json', True)
 
     req_header = {
         'content-type': 'application/json; charset=utf-8',
@@ -21,7 +21,7 @@ def main(shtcode: str) -> None:
     }
 
     path = '/uapi/domestic-stock/v1/quotations/inquire-price'
-    req_url = f'{common.BASE_REST_URL}/{path}'
+    req_url = f'{common.BASE_DEV_REST_URL}/{path}'
 
     resp = requests.get(req_url, headers=req_header, params=req_body).json()
     pprint.pprint(resp)

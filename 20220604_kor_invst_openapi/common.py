@@ -8,9 +8,10 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 
 
-ACC_TOKEN_FILE_NAME = 'acc_token.json'
-BASE_REST_URL = 'https://openapi.koreainvestment.com:9443'
-BASE_WS_URL = 'ws://ops.koreainvestment.com:21000'
+BASE_REAL_REST_URL = 'https://openapi.koreainvestment.com:9443'
+BASE_DEV_REST_URL = 'https://openapivts.koreainvestment.com:29443'
+BASE_REAL_WS_URL = 'ws://ops.koreainvestment.com:21000'
+BASE_DEV_WS_URL = 'ws://ops.koreainvestment.com:31000'
 
 
 def get_keys(config_file_nm: str) -> tuple:
@@ -25,16 +26,16 @@ def get_keys(config_file_nm: str) -> tuple:
     return app_key, app_secret
 
 
-def get_acc_token(app_key: str, app_secret: str) -> tuple:
-    if os.path.exists(ACC_TOKEN_FILE_NAME):
-        with open('acc_token.json', 'r', encoding='utf-8') as f:
+def get_acc_token(app_key: str, app_secret: str, token_file_nm: str, is_dev: bool = False) -> tuple:
+    if os.path.exists(token_file_nm):
+        with open(token_file_nm, 'r', encoding='utf-8') as f:
             acc_token_info: dict = json.loads(f.read())
             expire_ts = int(acc_token_info.get('expire_ts', 0))
 
             if int(time.time()) < expire_ts:
                 return acc_token_info.get('token_type'), acc_token_info.get('acc_token')
 
-    req_url = f'{BASE_REST_URL}/oauth2/tokenP'
+    req_url = f'{BASE_REAL_REST_URL if not is_dev else BASE_DEV_REST_URL}/oauth2/tokenP'
 
     req_body = {
         'grant_type': 'client_credentials',
@@ -48,7 +49,7 @@ def get_acc_token(app_key: str, app_secret: str) -> tuple:
     expire_ts: int = int(time.time()) + resp.get('expires_in', 0)
     acc_token: str = resp.get('access_token')
 
-    with open('acc_token.json', 'w', encoding='utf-8') as f:
+    with open(token_file_nm, 'w', encoding='utf-8') as f:
         data = {
             'token_type': token_type,
             'acc_token': acc_token,
@@ -60,8 +61,8 @@ def get_acc_token(app_key: str, app_secret: str) -> tuple:
     return token_type, acc_token
 
 
-def get_hashkey(app_key: str, app_secret: str, data: dict) -> str:
-    req_url = f'{BASE_REST_URL}/uapi/hashkey'
+def get_hashkey(app_key: str, app_secret: str, data: dict, is_dev: bool = False) -> str:
+    req_url = f'{BASE_REAL_REST_URL if not is_dev else BASE_DEV_REST_URL}/uapi/hashkey'
 
     req_header = {
         'content-type': 'application/json; charset=utf-8',

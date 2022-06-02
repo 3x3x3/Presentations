@@ -3,9 +3,9 @@ import pprint
 import common
 
 if '__main__' == __name__:
-    app_key, app_secret = common.get_keys('config.ini')
+    app_key, app_secret = common.get_keys('config_dev.ini')
 
-    req_url = f'{common.BASE_REST_URL}/oauth2/tokenP'
+    req_url = f'{common.BASE_DEV_REST_URL}/oauth2/tokenP'
 
     req_body = {
         'grant_type': 'client_credentials',
